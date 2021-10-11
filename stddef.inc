@@ -20,41 +20,41 @@
   pop r10
 %endmacro
 
-/*
-  More sane register names. Helps dealing with the cognitive load of register allocation.
-  The main downside is with very specific instructions which change specific registers,
-  but those are not used extremely often anyway.
 
-  This is unconventional but I don't really give a damn, especially considering
-  this is a private hobby project.
+;  More sane register names. Helps dealing with the cognitive load of register allocation.
+;  The main downside is with very specific instructions which change specific registers,
+;  but those are not used extremely often anyway.
+;
+;  This is unconventional but I don't really give a damn, especially considering
+;  this is a private hobby project.
+;
+;  The logic of this comes from the System V ABI for amd64.
+;  The first six integer or pointer arguments are passed in
+;  the registers RDI, RSI, RDX, RCX, R8, R9 (all old style);
+;  so with these new definitions that would now be  r1, r2, r3, r4, r5, r6.
+;
+;  The return value is put in r8. If the return value is 128 bits in size then
+;  the high 64 bits go in rdx(old style), which is now r3
+;
+;
+;  r10(old style) in System V ABI is a static chain pointer, now that register is called r7
+;  following on the last function argument register.
+;
+;  The registers r10, r11, r12, r13, r14, r15 are callee-saved.
+;
+;
+;  Linux system calls don't quite use the same argument passing convention as the System V ABI does,
+;  The order of arguments for linux system calls will now be r1, r2, r3, r7(!), r5, r6
+;
+;
+;  the RSP (stack pointer) register is unchanged as it is not a general purpose register.
+;  What was previously RBP is now r11
+;
+;  Personally I think this clears up the register naming a lot, and you don't have to
+;  remember the seemingly random order for argument passing.
 
-  The logic of this comes from the System V ABI for amd64.
-  The first six integer or pointer arguments are passed in
-  the registers RDI, RSI, RDX, RCX, R8, R9 (all old style);
-  so with these new definitions that would now be  r1, r2, r3, r4, r5, r6.
 
-  The return value is put in r8. If the return value is 128 bits in size then
-  the high 64 bits go in rdx(old style), which is now r3
-
-
-  r10(old style) in System V ABI is a static chain pointer, now that register is called r7
-  following on the last function argument register.
-
-  The registers r10, r11, r12, r13, r14, r15 are callee-saved.
-
-
-  Linux system calls don't quite use the same argument passing convention as the System V ABI does,
-  The order of arguments for linux system calls will now be r1, r2, r3, r7(!), r5, r6
-
-
-  the RSP (stack pointer) register is unchanged as it is not a general purpose register.
-  What was previously RBP is now r11
-
-  Personally I think this clears up the register naming a lot, and you don't have to
-  remember the seemingly random order for argument passing.
-*/
-
-// Function argument registers
+; Function argument registers
 %define r1  RDI
 %define r1d EDI
 %define r1w DI
@@ -85,26 +85,26 @@
 %define r6w R9W
 %define r6b R9B
 
-// Static chain pointer and used for some Linux system calls as argument register
-// inbetween RCX and R8
+; Static chain pointer and used for some Linux system calls as argument register
+; inbetween RCX and R8
 %define r7  R10
 %define r7d R10D
 %define r7w R10W
 %define r7b R10B
 
-// Return value
+; Return value
 %define r8  RAX
 %define r8d EAX
 %define r8w AX
 %define r8b AL
 
-// Remaining registers
+; Remaining registers
 %define r9  R11
 %define r9d R11D
 %define r9w R11W
 %define r9b R11B
 
-// The following  are all callee-saved
+; The following  are all callee-saved
 
 %define r10  RBX
 %define r10d EBX
@@ -115,4 +115,4 @@
 %define r11d EBP
 %define r11w BP
 %define r11b BL
-// Registers r12, r13, r14 and r15 stay the same, also callee-saved
+; Registers r12, r13, r14 and r15 stay the same, also callee-saved
